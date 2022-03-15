@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="myOnClick()">Hello</button>
+    <script>
+        const ws = new WebSocket('ws://localhost:3001');
+        function heartbeat() {
+            clearTimeout(this.pingTimeout);
+            this.pingTimeout = setTimeout(() => {
+                this.terminate();
+            }, 2000 + 1000);
+        }
+        ws.onopen = (event) => {
+            // heartbeat();
+            let sendData = { event: 'open' }
+            console.log('onopen')
+            ws.send(JSON.stringify(sendData));
+        }
+        ws.onmessage = (event) => {
+            let recData = JSON.parse(event.data);
+            switch (recData.event) {
+                case 'response':
+                console.log(recData.data);
+                break;
+            }
+        }
+        ws.onclose = (event) => {
+            console.log('onclose')
+        }
+        
+        function myOnClick() {
+            console.log('myOnClick')
+            let sendData = {
+                event: 'request',
+                data: 'some data...'
+            };
+            ws.send(JSON.stringify(sendData));
+        }
+    </script>
+</body>
+</html>
